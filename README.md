@@ -1,3 +1,1 @@
-# chess-engine-4pmcax
-
-[Edit on StackBlitz ⚡️](https://stackblitz.com/edit/chess-engine-4pmcax)
+A simple chess board and engine written in React
