@@ -1,0 +1,50 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+p {
+  font-family: Lato;
+}
+
+@mixin boardStyles($square-size) {
+  .board {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .board__row {
+    display: block;
+    height: $square-size;
+  }
+
+  .board__square {
+    width: $square-size;
+    height: $square-size;
+    background-color: #ffe695;
+    display: inline-block;
+  }
+
+  .board__square > img {
+    width: $square-size;
+    height: $square-size;
+    display: inline-block;
+  }
+
+  .board__square.board__square--black {
+    background-color: #976625;
+  }
+}
+
+@media screen and (min-width: 680px) {
+  @include boardStyles(48px);
+}
+
+@media screen and (min-width: 320px) and (max-width: 680px) {
+  @include boardStyles(32px);
+}
+
+@media screen and (max-width: 320px) {
+  @include boardStyles(16px);
+}
