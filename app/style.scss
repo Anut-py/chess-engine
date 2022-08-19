@@ -38,13 +38,13 @@ p {
 }
 
 @media screen and (min-width: 680px) {
-  @include boardStyles(48px);
+  @include boardStyles(54px);
 }
 
 @media screen and (min-width: 320px) and (max-width: 680px) {
-  @include boardStyles(32px);
+  @include boardStyles(36px);
 }
 
 @media screen and (max-width: 320px) {
-  @include boardStyles(16px);
+  @include boardStyles(24px);
 }
