@@ -11,7 +11,7 @@ p {
 @mixin boardStyles($square-size) {
   .board {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
   }
 
   .board__row {
