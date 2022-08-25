@@ -41,4 +41,9 @@ export function isMove(move: any): move is Move {
   return isBasicMove(move) || isCastleMove(move);
 }
 
-export type Move = BasicMove | CastleMove;
+type Not<T> = {
+  [Key in keyof T]?: never;
+};
+export type Move =
+  | (Not<BasicMove> & CastleMove)
+  | (Not<CastleMove> & BasicMove);
