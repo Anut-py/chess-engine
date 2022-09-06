@@ -1,5 +1,4 @@
 import * as React from 'react';
-import images from '../images';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { getPieceId } from './models/Piece';
@@ -21,7 +20,7 @@ export default function Square(props: SquareProps) {
 
   useEffect(() => {
     if (piece !== undefined) {
-      setImage(images[getPieceId(piece)]);
+      setImage(require(`../public/images/Chess_${getPieceId(piece)}t45.svg`));
     }
   }, [piece]);
 
