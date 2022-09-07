@@ -1,3 +1,5 @@
+@use "sass:map";
+
 * {
   margin: 0;
   padding: 0;
@@ -8,10 +10,24 @@ p {
   font-family: Lato;
 }
 
+$files: (1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h');
+
+@mixin boardSquares($square-size) {
+  @for $file from 1 to 9 {
+    @for $rank from 1 to 9 {
+      .board__piece--#{map.get($files, $file)}#{$rank} {
+        left: calc($square-size * ($file - 1));
+        top: calc($square-size * (8 - $rank));
+      }
+    }
+  }
+}
+
 @mixin boardStyles($square-size) {
   .board {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
+    position: relative;
   }
 
   .board__row {
@@ -26,15 +42,19 @@ p {
     display: inline-block;
   }
 
-  .board__square > img {
-    width: $square-size;
-    height: $square-size;
-    display: inline-block;
-  }
-
   .board__square.board__square--black {
     background-color: #976625;
   }
+
+  .board__piece {
+    position: absolute;
+    width: $square-size;
+    height: $square-size;
+    display: inline-block;
+    transition: top 200ms linear, left 200ms linear;
+  }
+
+  @include boardSquares($square-size)
 }
 
 @media screen and (min-width: 680px) {
