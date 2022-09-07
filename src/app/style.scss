@@ -3,6 +3,7 @@
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 h1,
@@ -26,7 +27,7 @@ $files: (1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h');
 @mixin boardStyles($square-size) {
   .board {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     position: relative;
   }
 
@@ -46,12 +47,42 @@ $files: (1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h');
     background-color: #976625;
   }
 
+  .board__square.board__square--clickable {
+    cursor: pointer;
+  }
+
+  $marker-multiplier: 0.3;
+
+  .board__square > .board__square-overlay {
+    width: $square-size;
+    height: $square-size;
+    z-index: 3;
+    position: relative;
+    padding-top: calc($square-size * (1 - $marker-multiplier) / 2);
+    padding-left: calc($square-size * (1 - $marker-multiplier) / 2);
+  }
+
+  .board__square-overlay > .board__square-marker {
+    width: calc($square-size * $marker-multiplier);
+    height: calc($square-size * $marker-multiplier);
+    border-radius: $square-size;
+    background-color: #b0ccb9cc;
+  }
+
   .board__piece {
     position: absolute;
     width: $square-size;
     height: $square-size;
     display: inline-block;
     transition: top 200ms linear, left 200ms linear;
+  }
+
+  .board__piece.board__piece--clickable {
+    cursor: pointer;
+  }
+
+  .board__piece.board__piece--selected {
+    background-color: #b0ccb9cc;
   }
 
   @include boardSquares($square-size)

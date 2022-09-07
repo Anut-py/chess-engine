@@ -1,9 +1,9 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, current, PayloadAction } from "@reduxjs/toolkit";
 import { findPiece, findPieceIndex, movePiece } from "../models/BoardState";
 import GameState from "../models/GameState";
 import { isMove, Move } from "../models/Move";
 import { initialKeys, toggleColor } from "../models/Piece";
-import { getPosition } from "../models/Position";
+import Position, { getPosition } from "../models/Position";
 import { boardInitialState } from "./boardSlice";
 
 const initialState: GameState = {
@@ -36,14 +36,14 @@ export const gameSlice = createSlice({
             ? getPosition(move.finalPosition.file, emPassantRank)
             : move.finalPosition;
 
-          state.keys.push(
-            state.keys[state.keys.length]
-              .slice() // Copy previous keys
-              .splice(
-                findPieceIndex(previousState, captured.file, captured.rank), // Index of captured piece
-                1
-              ) // Remove key of captured piece
-          );
+          const copied = state.keys[state.keys.length - 1].slice(); // Copy previous keys
+
+          copied.splice(
+            findPieceIndex(previousState, captured.file, captured.rank), // Index of captured piece
+            1
+          ); // Remove key of captured piece
+
+          state.keys.push(copied);
         } else {
           state.keys.push(state.keys[state.keys.length - 1].slice());
         }
@@ -59,10 +59,20 @@ export const gameSlice = createSlice({
       state.currentMove = payload.currentMove;
       state.selectedPiece = payload.selectedPiece;
     },
+    selectPiece(state: GameState, action: PayloadAction<Position | undefined>) {
+      if (action.payload !== undefined) {
+        const found = state.boardStates[
+          state.boardStates.length - 1
+        ].pieces.find((p) => p.position.name === action.payload?.name);
+        if (found !== undefined) state.selectedPiece = found;
+      } else {
+        state.selectedPiece = undefined;
+      }
+    },
   },
 });
 
-export const { movePieceInGame, resetGame } = gameSlice.actions;
+export const { movePieceInGame, resetGame, selectPiece } = gameSlice.actions;
 export const gameInitialState = initialState;
 
 export default gameSlice.reducer;

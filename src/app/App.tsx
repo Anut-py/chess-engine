@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import Board from "./Board";
-import { findPiece } from "./models/BoardState";
+import { findPiece, isInCheck } from "./models/BoardState";
 import { getPosition } from "./models/Position";
-import { movePiece } from "./slices/boardSlice";
+import { movePieceOnBoard } from "./slices/boardSlice";
 import "./style.scss";
 
 export default function App() {
@@ -15,7 +15,7 @@ export default function App() {
       <button
         onClick={() =>
           dispatch(
-            movePiece({
+            movePieceOnBoard({
               piece: findPiece(board, "a", 2) ?? {
                 type: "PAWN",
                 color: "WHITE",
@@ -30,6 +30,8 @@ export default function App() {
       >
         Move piece
       </button>
+      <p>White in check: {isInCheck(board, "WHITE").toString()}</p>
+      <p>Black in check: {isInCheck(board, "BLACK").toString()}</p>
       <Board />
     </>
   );

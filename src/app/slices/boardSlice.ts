@@ -18,7 +18,7 @@ export const boardSlice = createSlice({
   name: "board",
   initialState,
   reducers: {
-    movePiece: (state: BoardState, action: PayloadAction<Move>) => {
+    movePieceOnBoard: (state: BoardState, action: PayloadAction<Move>) => {
       const move = action.payload;
       if (isMove(move)) {
         const newState = movePiece1(state, move);
@@ -39,7 +39,7 @@ export const boardSlice = createSlice({
   },
 });
 
-export const { movePiece, resetBoard } = boardSlice.actions;
+export const { movePieceOnBoard, resetBoard } = boardSlice.actions;
 export const boardInitialState = initialState;
 
 export default boardSlice.reducer;

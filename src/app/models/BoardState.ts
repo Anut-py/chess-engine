@@ -1,5 +1,5 @@
 import { isBasicMove, isCastleMove, Move, BasicMove } from "./Move";
-import Piece, { Color, Pieces, PieceType } from "./Piece";
+import Piece, { Color, Pieces, PieceType, toggleColor } from "./Piece";
 import Position, {
   fileToNum,
   getPosition,
@@ -341,6 +341,8 @@ function kingMoves(
       }
     }
   }
+
+  for (let i = 0; i < 8; i++) process(i);
 }
 
 export function allowedMoves(state: BoardState, currentPlayer: Color): Move[] {
@@ -369,6 +371,25 @@ export function allowedMoves(state: BoardState, currentPlayer: Color): Move[] {
     }
   }
   return moves;
+}
+
+export function isInCheck(state: BoardState, player: Color) {
+  const moves = allowedMoves(state, toggleColor(player));
+  const kingPosition = state.pieces.find((p) => p.type === "KING")?.position
+    ?.name;
+
+  return moves.some(
+    (move) =>
+      isBasicMove(move) &&
+      move.capture &&
+      move.finalPosition.name === kingPosition
+  );
+}
+
+export function legalMoves(state: BoardState, currentPlayer: Color) {
+  return allowedMoves(state, currentPlayer).filter(
+    (move) => !isInCheck(movePiece(state, move), currentPlayer)
+  );
 }
 
 export function movePiece(originalState: BoardState, move: Move) {
@@ -401,10 +422,6 @@ export function movePiece(originalState: BoardState, move: Move) {
       (p) => p.position.name === move.piece.position.name
     );
     if (piece !== undefined) {
-      piece.position = move.finalPosition;
-      if (move.promote !== undefined) {
-        piece.type = move.promote;
-      }
       if (move.capture) {
         const captureEmPassantRank =
           move.piece.color === "WHITE"
@@ -418,6 +435,10 @@ export function movePiece(originalState: BoardState, move: Move) {
           (p) => p.position.name === posToRemove.name
         );
         state.pieces.splice(removalIdx, 1);
+      }
+      piece.position = move.finalPosition;
+      if (move.promote !== undefined) {
+        piece.type = move.promote;
       }
     }
   }
