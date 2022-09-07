@@ -56,7 +56,7 @@ function pawnMoves(
 ) {
   function promote(move: BasicMove): Move[] {
     return move.finalPosition?.rank === (currentPlayer === "WHITE" ? 8 : 1)
-      ? (Object.keys(Pieces) as (keyof PieceType)[]).map((p) => ({
+      ? (["QUEEN", "ROOK", "BISHOP", "KNIGHT"] as const).map((p) => ({
           ...move,
           promote: p,
         }))
@@ -79,56 +79,6 @@ function pawnMoves(
       })
     );
 
-    if (piece.position.file !== "a") {
-      const leftFound = findPiece(
-        state,
-        numToFile((fileToNum(piece.position.file) - 1) as any),
-        piece.position.rank + multiplier
-      );
-
-      if (leftFound !== undefined && leftFound.color !== currentPlayer) {
-        moves.push(
-          ...promote({
-            capture: true,
-            emPassant: false,
-            finalPosition: leftFound.position,
-            piece: piece,
-          })
-        );
-      }
-    }
-
-    if (piece.position.file !== "h") {
-      const rightFound = findPiece(
-        state,
-        numToFile((fileToNum(piece.position.file) + 1) as any),
-        piece.position.rank + multiplier
-      );
-
-      if (rightFound !== undefined && rightFound.color !== currentPlayer) {
-        moves.push(
-          ...promote({
-            capture: true,
-            emPassant: false,
-            finalPosition: rightFound.position,
-            piece: piece,
-          })
-        );
-      }
-    }
-
-    if (
-      state.emPassant?.start.name === piece.position.name &&
-      state.emPassant?.color === currentPlayer
-    ) {
-      moves.push({
-        emPassant: true,
-        capture: true,
-        finalPosition: state.emPassant.end,
-        piece: piece,
-      });
-    }
-
     if (
       firstMove &&
       !isOccupied(
@@ -147,6 +97,56 @@ function pawnMoves(
         emPassant: false,
       });
     }
+  }
+
+  if (piece.position.file !== "a") {
+    const leftFound = findPiece(
+      state,
+      numToFile((fileToNum(piece.position.file) - 1) as any),
+      piece.position.rank + multiplier
+    );
+
+    if (leftFound !== undefined && leftFound.color !== currentPlayer) {
+      moves.push(
+        ...promote({
+          capture: true,
+          emPassant: false,
+          finalPosition: leftFound.position,
+          piece: piece,
+        })
+      );
+    }
+  }
+
+  if (piece.position.file !== "h") {
+    const rightFound = findPiece(
+      state,
+      numToFile((fileToNum(piece.position.file) + 1) as any),
+      piece.position.rank + multiplier
+    );
+
+    if (rightFound !== undefined && rightFound.color !== currentPlayer) {
+      moves.push(
+        ...promote({
+          capture: true,
+          emPassant: false,
+          finalPosition: rightFound.position,
+          piece: piece,
+        })
+      );
+    }
+  }
+
+  if (
+    state.emPassant?.start.name === piece.position.name &&
+    state.emPassant?.color === currentPlayer
+  ) {
+    moves.push({
+      emPassant: true,
+      capture: true,
+      finalPosition: state.emPassant.end,
+      piece: piece,
+    });
   }
 }
 
