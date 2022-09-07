@@ -1,6 +1,11 @@
 import { isBasicMove, isCastleMove, Move, BasicMove } from "./Move";
 import Piece, { Color, Pieces, PieceType } from "./Piece";
-import Position, { fileToNum, getPosition, numToFile } from "./Position";
+import Position, {
+  fileToNum,
+  getPosition,
+  isValidPosition,
+  numToFile,
+} from "./Position";
 
 export enum CastleState {
   KINGSIDE,
@@ -43,7 +48,7 @@ export function findPieceIndex(state: BoardState, file: string, rank: number) {
   );
 }
 
-function pawnLegalMoves(
+function pawnMoves(
   state: BoardState,
   currentPlayer: Color,
   piece: Piece,
@@ -59,7 +64,6 @@ function pawnLegalMoves(
   }
   const firstMove = piece.position.rank === (currentPlayer === "WHITE" ? 2 : 7);
   const multiplier = currentPlayer === "WHITE" ? 1 : -1;
-  console.log(piece, state);
   if (
     !isOccupied(state, piece.position.file, piece.position.rank + multiplier)
   ) {
@@ -146,13 +150,12 @@ function pawnLegalMoves(
   }
 }
 
-function bishopLegalMoves(
+function bishopMoves(
   state: BoardState,
   currentPlayer: Color,
   piece: Piece,
   moves: Move[]
 ) {
-  let pos: Position = piece.position;
   function trace(direction: number, position: Position) {
     let finalPosition = position;
 
@@ -198,16 +201,67 @@ function bishopLegalMoves(
     }
   }
 
-  for (let i = 0; i < 4; i++) trace(i, pos);
+  for (let i = 0; i < 4; i++) trace(i, piece.position);
 }
 
-export function legalMoves(state: BoardState, currentPlayer: Color): Move[] {
+function knightMoves(
+  state: BoardState,
+  currentPlayer: Color,
+  piece: Piece,
+  moves: Move[]
+) {
+  function process(direction: number) {
+    let file = fileToNum(piece.position.file);
+    let rank = piece.position.rank;
+    const firstDouble = (direction & 4) === 4;
+
+    if ((direction & 2) === 2) {
+      rank += firstDouble ? 2 : 1;
+    } else {
+      rank -= firstDouble ? 2 : 1;
+    }
+
+    if ((direction & 1) === 1) {
+      file += firstDouble ? 1 : 2;
+    } else {
+      file -= firstDouble ? 1 : 2;
+    }
+
+    if (isValidPosition(file, rank)) {
+      const fileLetter = numToFile(file as any);
+      if (
+        isOccupied(state, fileLetter, rank) &&
+        findPiece(state, fileLetter, rank)?.color !== currentPlayer
+      ) {
+        moves.push({
+          piece: piece,
+          finalPosition: getPosition(file, rank),
+          emPassant: false,
+          capture: true,
+        });
+      } else if (!isOccupied(state, fileLetter, rank)) {
+        moves.push({
+          piece: piece,
+          finalPosition: getPosition(file, rank),
+          emPassant: false,
+          capture: false,
+        });
+      }
+    }
+  }
+
+  for (let i = 0; i < 8; i++) process(i);
+}
+
+export function allowedMoves(state: BoardState, currentPlayer: Color): Move[] {
   const moves: Move[] = [];
   for (let piece of state.pieces.filter((p) => p.color === currentPlayer)) {
     if (piece.type === "PAWN") {
-      pawnLegalMoves(state, currentPlayer, piece, moves);
+      pawnMoves(state, currentPlayer, piece, moves);
     } else if (piece.type === "BISHOP") {
-      bishopLegalMoves(state, currentPlayer, piece, moves);
+      bishopMoves(state, currentPlayer, piece, moves);
+    } else if (piece.type === "KNIGHT") {
+      knightMoves(state, currentPlayer, piece, moves);
     }
   }
   return moves;
@@ -244,6 +298,9 @@ export function movePiece(originalState: BoardState, move: Move) {
     );
     if (piece !== undefined) {
       piece.position = move.finalPosition;
+      if (move.promote !== undefined) {
+        piece.type = move.promote;
+      }
       if (move.capture) {
         const captureEmPassantRank =
           move.piece.color === "WHITE"

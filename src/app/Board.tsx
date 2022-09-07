@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import Figurine from "./Figurine";
-import { legalMoves } from "./models/BoardState";
+import { allowedMoves } from "./models/BoardState";
 import { BoardFile, BoardRank, FileToNum, numToFile } from "./models/Position";
 import Square from "./Square";
 
@@ -40,7 +40,7 @@ export default function Board() {
           ></Figurine>
         ))}
       </div>
-      {legalMoves(board, "WHITE").map((move, i) => (
+      {allowedMoves(board, "WHITE").map((move, i) => (
         <p key={i}>{JSON.stringify(move)}</p>
       ))}
     </>

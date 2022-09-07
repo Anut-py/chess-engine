@@ -1,5 +1,5 @@
 export type BoardRank = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-export type BoardFile = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h';
+export type BoardFile = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h";
 export type FileToNum<F extends BoardFile> = {
   a: 1;
   b: 2;
@@ -11,15 +11,15 @@ export type FileToNum<F extends BoardFile> = {
   h: 8;
 }[F];
 export type NumToFile<N extends FileToNum<BoardFile>> = [
-  '',
-  'a',
-  'b',
-  'c',
-  'd',
-  'e',
-  'f',
-  'g',
-  'h'
+  "",
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h"
 ][N];
 export default interface Position {
   rank: BoardRank;
@@ -31,36 +31,47 @@ export function isPosition(position: any): position is Position {
   return (
     position !== null &&
     position !== undefined &&
-    typeof position === 'object' &&
+    typeof position === "object" &&
     [1, 2, 3, 4, 5, 6, 7, 8].includes(position.rank) &&
-    'abcdefgh'.includes(position.file) &&
+    "abcdefgh".includes(position.file) &&
     position.name === position.file + position.rank
   );
 }
 
 export function fileToNum<F extends BoardFile>(file: F): FileToNum<F> {
-  return ' abcdefgh'.indexOf(file) as FileToNum<F>;
+  return " abcdefgh".indexOf(file) as FileToNum<F>;
 }
 
 export function numToFile<F extends FileToNum<BoardFile>>(
   file: F
 ): NumToFile<F> {
-  return ' abcdefgh'[file] as NumToFile<F>;
+  return " abcdefgh"[file] as NumToFile<F>;
+}
+
+export function isValidPosition(file: number | string, rank: number): boolean {
+  if (typeof file === "number") {
+    return (
+      [1, 2, 3, 4, 5, 6, 7, 8].includes(file) &&
+      [1, 2, 3, 4, 5, 6, 7, 8].includes(rank)
+    );
+  } else {
+    return "abcdefgh".includes(file) && [1, 2, 3, 4, 5, 6, 7, 8].includes(rank);
+  }
 }
 
 export function getPosition(file: number | string, rank: number): Position {
-  if (typeof file === 'string') {
+  if (typeof file === "string") {
     return {
       rank: rank as BoardRank,
       file: file as BoardFile,
-      name: (file + rank) as Position['name'],
+      name: (file + rank) as Position["name"],
     };
   } else {
     return {
       rank: rank as BoardRank,
       file: numToFile(file as FileToNum<BoardFile>),
       name: (numToFile(file as FileToNum<BoardFile>) +
-        rank) as Position['name'],
+        rank) as Position["name"],
     };
   }
 }
