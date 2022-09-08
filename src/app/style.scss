@@ -11,6 +11,11 @@ p {
   font-family: Lato;
 }
 
+$light-square: #ffe695;
+$dark-square: #976625;
+$primary-color: #bcc8ff;
+$secondary-color: #8f99bb;
+
 $files: (
   1: "a",
   2: "b",
@@ -48,12 +53,12 @@ $files: (
   .board__square {
     width: $square-size;
     height: $square-size;
-    background-color: #ffe695;
+    background-color: $light-square;
     display: inline-block;
   }
 
   .board__square.board__square--black {
-    background-color: #976625;
+    background-color: $dark-square;
   }
 
   .board__square.board__square--clickable {
@@ -61,7 +66,7 @@ $files: (
   }
 
   .board__square.board__square--capturable {
-    background-color: #b0b5cccc;
+    background-color: $primary-color;
   }
 
   $marker-multiplier: 0.3;
@@ -79,7 +84,7 @@ $files: (
     width: calc($square-size * $marker-multiplier);
     height: calc($square-size * $marker-multiplier);
     border-radius: $square-size;
-    background-color: #b0b5cccc;
+    background-color: $primary-color;
   }
 
   .board__piece {
@@ -95,7 +100,7 @@ $files: (
   }
 
   .board__piece.board__piece--selected {
-    background-color: #ccb0b5cc;
+    background-color: $secondary-color;
   }
 
   @include boardSquares($square-size);
