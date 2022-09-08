@@ -11,7 +11,16 @@ p {
   font-family: Lato;
 }
 
-$files: (1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h');
+$files: (
+  1: "a",
+  2: "b",
+  3: "c",
+  4: "d",
+  5: "e",
+  6: "f",
+  7: "g",
+  8: "h",
+);
 
 @mixin boardSquares($square-size) {
   @for $file from 1 to 9 {
@@ -51,6 +60,10 @@ $files: (1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h');
     cursor: pointer;
   }
 
+  .board__square.board__square--capturable {
+    background-color: #b0b5cccc;
+  }
+
   $marker-multiplier: 0.3;
 
   .board__square > .board__square-overlay {
@@ -66,7 +79,7 @@ $files: (1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h');
     width: calc($square-size * $marker-multiplier);
     height: calc($square-size * $marker-multiplier);
     border-radius: $square-size;
-    background-color: #b0ccb9cc;
+    background-color: #b0b5cccc;
   }
 
   .board__piece {
@@ -82,10 +95,10 @@ $files: (1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h');
   }
 
   .board__piece.board__piece--selected {
-    background-color: #b0ccb9cc;
+    background-color: #ccb0b5cc;
   }
 
-  @include boardSquares($square-size)
+  @include boardSquares($square-size);
 }
 
 @media screen and (min-width: 680px) {

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
+import { isOccupied } from "./models/BoardState";
 import { Move } from "./models/Move";
 import { BoardFile, BoardRank, fileToNum } from "./models/Position";
 import { movePieceOnBoard } from "./slices/boardSlice";
@@ -12,15 +13,17 @@ export interface SquareProps {
 }
 
 export default function Square(props: SquareProps) {
-  const game = useAppSelector((state) => state.game);
+  const board = useAppSelector((state) => state.board);
   const dispatch = useAppDispatch();
   const blackSquare = (fileToNum(props.file) + props.rank) % 2 === 0;
+  const clickable = props.move !== undefined;
+  const occupied = isOccupied(board, props.file, props.rank);
 
   return (
     <div
       className={`board__square ${blackSquare ? "board__square--black" : ""} ${
-        props.move !== undefined ? "board__square--clickable" : ""
-      }`}
+        clickable ? "board__square--clickable" : ""
+      } ${clickable && occupied ? "board__square--capturable" : ""}`}
     >
       {props.move !== undefined ? (
         <div
@@ -32,7 +35,7 @@ export default function Square(props: SquareProps) {
             }
           }}
         >
-          <div className="board__square-marker"></div>
+          <div className={!occupied ? "board__square-marker" : ""}></div>
         </div>
       ) : null}
     </div>
