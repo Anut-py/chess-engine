@@ -1,14 +1,14 @@
 @use "sass:map";
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 h1,
 p {
-  font-family: Lato;
+    font-family: Lato;
 }
 
 $light-square: #ffe695;
@@ -17,103 +17,103 @@ $primary-color: #bcc8ff;
 $secondary-color: #8f99bb;
 
 $files: (
-  1: "a",
-  2: "b",
-  3: "c",
-  4: "d",
-  5: "e",
-  6: "f",
-  7: "g",
-  8: "h",
+    1: "a",
+    2: "b",
+    3: "c",
+    4: "d",
+    5: "e",
+    6: "f",
+    7: "g",
+    8: "h",
 );
 
 @mixin boardSquares($square-size) {
-  @for $file from 1 to 9 {
-    @for $rank from 1 to 9 {
-      .board__piece--#{map.get($files, $file)}#{$rank} {
-        left: calc($square-size * ($file - 1));
-        top: calc($square-size * (8 - $rank));
-      }
+    @for $file from 1 to 9 {
+        @for $rank from 1 to 9 {
+            .board__piece--#{map.get($files, $file)}#{$rank} {
+                left: calc($square-size * ($file - 1));
+                top: calc($square-size * (8 - $rank));
+            }
+        }
     }
-  }
 }
 
 @mixin boardStyles($square-size) {
-  .board {
-    display: flex;
-    flex-direction: column-reverse;
-    position: relative;
-  }
+    .board {
+        display: flex;
+        flex-direction: column-reverse;
+        position: relative;
+    }
 
-  .board__row {
-    display: block;
-    height: $square-size;
-  }
+    .board__row {
+        display: block;
+        height: $square-size;
+    }
 
-  .board__square {
-    width: $square-size;
-    height: $square-size;
-    background-color: $light-square;
-    display: inline-block;
-  }
+    .board__square {
+        width: $square-size;
+        height: $square-size;
+        background-color: $light-square;
+        display: inline-block;
+    }
 
-  .board__square.board__square--black {
-    background-color: $dark-square;
-  }
+    .board__square.board__square--black {
+        background-color: $dark-square;
+    }
 
-  .board__square.board__square--clickable {
-    cursor: pointer;
-  }
+    .board__square.board__square--clickable {
+        cursor: pointer;
+    }
 
-  .board__square.board__square--capturable {
-    background-color: $primary-color;
-  }
+    .board__square.board__square--capturable {
+        background-color: $primary-color;
+    }
 
-  $marker-multiplier: 0.3;
+    $marker-multiplier: 0.3;
 
-  .board__square > .board__square-overlay {
-    width: $square-size;
-    height: $square-size;
-    z-index: 3;
-    position: relative;
-    padding-top: calc($square-size * (1 - $marker-multiplier) / 2);
-    padding-left: calc($square-size * (1 - $marker-multiplier) / 2);
-  }
+    .board__square > .board__square-overlay {
+        width: $square-size;
+        height: $square-size;
+        z-index: 3;
+        position: relative;
+        padding-top: calc($square-size * (1 - $marker-multiplier) / 2);
+        padding-left: calc($square-size * (1 - $marker-multiplier) / 2);
+    }
 
-  .board__square-overlay > .board__square-marker {
-    width: calc($square-size * $marker-multiplier);
-    height: calc($square-size * $marker-multiplier);
-    border-radius: $square-size;
-    background-color: $primary-color;
-  }
+    .board__square-overlay > .board__square-marker {
+        width: calc($square-size * $marker-multiplier);
+        height: calc($square-size * $marker-multiplier);
+        border-radius: $square-size;
+        background-color: $primary-color;
+    }
 
-  .board__piece {
-    position: absolute;
-    width: $square-size;
-    height: $square-size;
-    display: inline-block;
-    transition: top 200ms linear, left 200ms linear;
-  }
+    .board__piece {
+        position: absolute;
+        width: $square-size;
+        height: $square-size;
+        display: inline-block;
+        transition: top 200ms linear, left 200ms linear;
+    }
 
-  .board__piece.board__piece--clickable {
-    cursor: pointer;
-  }
+    .board__piece.board__piece--clickable {
+        cursor: pointer;
+    }
 
-  .board__piece.board__piece--selected {
-    background-color: $secondary-color;
-  }
+    .board__piece.board__piece--selected {
+        background-color: $secondary-color;
+    }
 
-  @include boardSquares($square-size);
+    @include boardSquares($square-size);
 }
 
 @media screen and (min-width: 680px) {
-  @include boardStyles(54px);
+    @include boardStyles(54px);
 }
 
 @media screen and (min-width: 320px) and (max-width: 680px) {
-  @include boardStyles(36px);
+    @include boardStyles(36px);
 }
 
 @media screen and (max-width: 320px) {
-  @include boardStyles(24px);
+    @include boardStyles(24px);
 }

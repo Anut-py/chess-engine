@@ -8,13 +8,13 @@ import store from "./store";
 
 const rootElement = document.getElementById("root");
 if (rootElement !== null) {
-  const root = createRoot(rootElement);
+    const root = createRoot(rootElement);
 
-  root.render(
-    <StrictMode>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </StrictMode>
-  );
+    root.render(
+        <StrictMode>
+            <Provider store={store}>
+                <App />
+            </Provider>
+        </StrictMode>
+    );
 }

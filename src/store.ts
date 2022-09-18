@@ -3,10 +3,10 @@ import boardReducer from "./app/slices/boardSlice";
 import gameReducer from "./app/slices/gameSlice";
 
 const store = configureStore({
-  reducer: {
-    board: boardReducer,
-    game: gameReducer,
-  },
+    reducer: {
+        board: boardReducer,
+        game: gameReducer,
+    },
 });
 
 export default store;
