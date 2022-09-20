@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import Figurine from "./Figurine";
-import { allowedMoves, legalMoves } from "./models/BoardState";
+import { allowedMoves, CastleType, legalMoves } from "./models/BoardState";
+import { isCastleMove } from "./models/Move";
 import { BoardFile, BoardRank, FileToNum, numToFile } from "./models/Position";
 import Square from "./Square";
 
@@ -12,8 +13,6 @@ export default function Board() {
     const squares: ReturnType<typeof Square>[][] = [];
     const currentLegalMoves = legalMoves(board, game.currentMove);
 
-    console.log("legal moves", currentLegalMoves);
-
     for (let i = 1; i <= 8; i++) {
         let row = [];
         for (let j = 1; j <= 8; j++) {
@@ -22,12 +21,19 @@ export default function Board() {
                     key={j.toString()}
                     file={numToFile(j as FileToNum<BoardFile>)}
                     rank={i as BoardRank}
-                    move={currentLegalMoves.find(
+                    moves={currentLegalMoves.filter(
                         (move) =>
-                            move.piece?.position.name ===
+                            (move.piece?.position.name ===
                                 game.selectedPiece?.position.name &&
-                            move.finalPosition?.file === numToFile(j as any) &&
-                            move.finalPosition.rank === i
+                                move.finalPosition?.file ===
+                                    numToFile(j as any) &&
+                                move.finalPosition.rank === i) ||
+                            (game.selectedPiece?.position.file === "e" &&
+                                game.selectedPiece.position.rank ===
+                                    (move.color === "WHITE" ? 1 : 8) &&
+                                i === game.selectedPiece.position.rank &&
+                                j ===
+                                    (move.type === CastleType.KINGSIDE ? 7 : 3))
                     )}
                 />
             );
@@ -50,7 +56,11 @@ export default function Board() {
                         canMove={currentLegalMoves.some(
                             (move) =>
                                 move.piece?.position.name ===
-                                piece.position.name
+                                    piece.position.name ||
+                                (isCastleMove(move) &&
+                                    piece.position.rank ===
+                                        (move.color === "WHITE" ? 1 : 8) &&
+                                    piece.position.file === "e")
                         )}
                     ></Figurine>
                 ))}

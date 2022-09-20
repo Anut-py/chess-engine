@@ -1,10 +1,11 @@
 import { BasicMove, isBasicMove, isCastleMove, Move } from "./Move";
 import Piece, { Color, toggleColor } from "./Piece";
 import Position, {
-  fileToNum,
-  getPosition,
-  isValidPosition,
-  numToFile
+    BoardRank,
+    fileToNum,
+    getPosition,
+    isValidPosition,
+    numToFile
 } from "./Position";
 
 export enum CastleState {
@@ -22,7 +23,7 @@ export default interface BoardState {
         black?: CastleState;
     };
     emPassant?: {
-        start: Position;
+        starts: Position[];
         end: Position;
         capture: Position;
         color: Color;
@@ -143,7 +144,7 @@ function pawnMoves(
     }
 
     if (
-        state.emPassant?.start.name === piece.position.name &&
+        state.emPassant?.starts.some((p) => p.name === piece.position.name) &&
         state.emPassant?.color === currentPlayer
     ) {
         moves.push({
@@ -356,7 +357,87 @@ function kingMoves(
     for (let i = 0; i < 8; i++) process(i);
 }
 
-export function allowedMoves(state: BoardState, currentPlayer: Color): Move[] {
+function isCastleIllegal(
+    state: BoardState,
+    currentPlayer: Color,
+    positions: Position[],
+    king: Piece
+) {
+    return positions.some(
+        (pos) =>
+            isOccupied(state, pos.file, pos.rank) ||
+            isInCheck(
+                movePiece(state, {
+                    piece: king,
+                    capture: false,
+                    emPassant: false,
+                    finalPosition: pos,
+                }),
+                currentPlayer
+            )
+    );
+}
+
+function castleLogic(
+    state: BoardState,
+    currentPlayer: Color,
+    col: "white" | "black",
+    rank: BoardRank,
+    king: Piece,
+    moves: Move[]
+) {
+    if (
+        state.castle[col] === CastleState.BOTH ||
+        state.castle[col] === CastleState.KINGSIDE
+    ) {
+        if (
+            !isCastleIllegal(
+                state,
+                currentPlayer,
+                [getPosition("f", rank), getPosition("g", rank)],
+                king
+            )
+        )
+            moves.push({ color: currentPlayer, type: CastleType.KINGSIDE });
+    }
+
+    if (
+        state.castle[col] === CastleState.BOTH ||
+        state.castle[col] === CastleState.QUEENSIDE
+    ) {
+        if (
+            !isCastleIllegal(
+                state,
+                currentPlayer,
+                [getPosition("d", rank), getPosition("c", rank)],
+                king
+            )
+        )
+            moves.push({
+                color: currentPlayer,
+                type: CastleType.QUEENSIDE,
+            });
+    }
+}
+
+function castleMoves(state: BoardState, currentPlayer: Color, moves: Move[]) {
+    if (isInCheck(state, currentPlayer)) return;
+
+    const col = currentPlayer === "WHITE" ? "white" : "black";
+    const rank = currentPlayer === "WHITE" ? 1 : 8;
+    const king = state.pieces.find(
+        (p) => p.type === "KING" && p.color === currentPlayer
+    );
+    if (king !== undefined) {
+        castleLogic(state, currentPlayer, col, rank, king, moves);
+    }
+}
+
+export function allowedMoves(
+    state: BoardState,
+    currentPlayer: Color,
+    checkForCheck = false
+): Move[] {
     const moves: Move[] = [];
     for (let piece of state.pieces.filter((p) => p.color === currentPlayer)) {
         switch (piece.type) {
@@ -381,15 +462,15 @@ export function allowedMoves(state: BoardState, currentPlayer: Color): Move[] {
                 break;
         }
     }
+    if (!checkForCheck) castleMoves(state, currentPlayer, moves);
     return moves;
 }
 
 export function isInCheck(state: BoardState, player: Color) {
-    const moves = allowedMoves(state, toggleColor(player));
-    const kingPosition = state.pieces.find((p) => p.type === "KING" && p.color === player)?.position
-        ?.name;
-
-    console.log("Is in check?", player, moves, kingPosition);
+    const moves = allowedMoves(state, toggleColor(player), true);
+    const kingPosition = state.pieces.find(
+        (p) => p.type === "KING" && p.color === player
+    )?.position?.name;
 
     return moves.some(
         (move) =>
@@ -407,6 +488,7 @@ export function legalMoves(state: BoardState, currentPlayer: Color) {
 
 export function movePiece(originalState: BoardState, move: Move) {
     const state: BoardState = JSON.parse(JSON.stringify(originalState));
+    const col = move.color === "WHITE" ? "white" : "black";
     if (isCastleMove(move)) {
         const king = state.pieces.find(
             (p) => p.color === move.color && p.type === "KING"
@@ -434,6 +516,7 @@ export function movePiece(originalState: BoardState, move: Move) {
                 rook.position = getPosition("d", rook.position.rank);
             }
         }
+        state.castle[col] = undefined;
     } else if (isBasicMove(move)) {
         const piece = state.pieces.find(
             (p) => p.position.name === move.piece.position.name
@@ -452,6 +535,30 @@ export function movePiece(originalState: BoardState, move: Move) {
                     (p) => p.position.name === posToRemove.name
                 );
                 state.pieces.splice(removalIdx, 1);
+            }
+            if (piece.type === "KING") {
+                state.castle[col] = undefined;
+            }
+            const firstRank = piece.color === "WHITE" ? 1 : 8;
+            if (piece.position.rank === firstRank && piece.type === "ROOK") {
+                if (
+                    piece.position.file === "a" &&
+                    (state.castle[col] === CastleState.QUEENSIDE ||
+                        state.castle[col] === CastleState.BOTH)
+                )
+                    state.castle[col] =
+                        state.castle[col] === CastleState.BOTH
+                            ? CastleState.KINGSIDE
+                            : undefined;
+                else if (
+                    piece.position.file === "h" &&
+                    (state.castle[col] === CastleState.KINGSIDE ||
+                        state.castle[col] === CastleState.BOTH)
+                )
+                    state.castle[col] =
+                        state.castle[col] === CastleState.BOTH
+                            ? CastleState.QUEENSIDE
+                            : undefined;
             }
             piece.position = move.finalPosition;
             if (move.promote !== undefined) {

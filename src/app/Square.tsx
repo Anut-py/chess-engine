@@ -9,14 +9,14 @@ import { movePieceInGame } from "./slices/gameSlice";
 export interface SquareProps {
     file: BoardFile;
     rank: BoardRank;
-    move?: Move;
+    moves: Move[];
 }
 
 export default function Square(props: SquareProps) {
     const board = useAppSelector((state) => state.board);
     const dispatch = useAppDispatch();
     const blackSquare = (fileToNum(props.file) + props.rank) % 2 === 0;
-    const clickable = props.move !== undefined;
+    const clickable = props.moves.length > 0;
     const occupied = isOccupied(board, props.file, props.rank);
 
     return (
@@ -27,13 +27,13 @@ export default function Square(props: SquareProps) {
                 clickable && occupied ? "board__square--capturable" : ""
             }`}
         >
-            {props.move !== undefined ? (
+            {clickable ? (
                 <div
                     className="board__square-overlay"
                     onClick={() => {
-                        if (props.move !== undefined) {
-                            dispatch(movePieceInGame(props.move));
-                            dispatch(movePieceOnBoard(props.move));
+                        if (clickable) {
+                            dispatch(movePieceInGame(props.moves[0]));
+                            dispatch(movePieceOnBoard(props.moves[0]));
                         }
                     }}
                 >

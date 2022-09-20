@@ -33,8 +33,7 @@ export function isCastleMove(move: any): move is CastleMove {
         move !== undefined &&
         typeof move === "object" &&
         isColor(move.color) &&
-        (move.castleType === CastleType.KINGSIDE ||
-            move.castleType === CastleType.QUEENSIDE)
+        Object.values(CastleType).includes(move.type)
     );
 }
 
