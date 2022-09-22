@@ -28,7 +28,8 @@ export default function Board() {
                                 move.finalPosition?.file ===
                                     numToFile(j as any) &&
                                 move.finalPosition.rank === i) ||
-                            (game.selectedPiece?.position.file === "e" &&
+                            (isCastleMove(move) &&
+                                game.selectedPiece?.position.file === "e" &&
                                 game.selectedPiece.position.rank ===
                                     (move.color === "WHITE" ? 1 : 8) &&
                                 i === game.selectedPiece.position.rank &&

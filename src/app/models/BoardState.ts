@@ -5,7 +5,7 @@ import Position, {
     fileToNum,
     getPosition,
     isValidPosition,
-    numToFile
+    numToFile,
 } from "./Position";
 
 export enum CastleState {
@@ -411,7 +411,8 @@ function castleLogic(
                 currentPlayer,
                 [getPosition("d", rank), getPosition("c", rank)],
                 king
-            )
+            ) &&
+            !isOccupied(state, "b", rank)
         )
             moves.push({
                 color: currentPlayer,
@@ -489,6 +490,8 @@ export function legalMoves(state: BoardState, currentPlayer: Color) {
 export function movePiece(originalState: BoardState, move: Move) {
     const state: BoardState = JSON.parse(JSON.stringify(originalState));
     const col = move.color === "WHITE" ? "white" : "black";
+
+    state.emPassant = undefined;
     if (isCastleMove(move)) {
         const king = state.pieces.find(
             (p) => p.color === move.color && p.type === "KING"
@@ -522,6 +525,41 @@ export function movePiece(originalState: BoardState, move: Move) {
             (p) => p.position.name === move.piece.position.name
         );
         if (piece !== undefined) {
+            if (
+                piece.type === "PAWN" &&
+                Math.abs(move.finalPosition.rank - piece.position.rank) === 2
+            ) {
+                const positions = [];
+
+                if (move.finalPosition.file !== "a") {
+                    positions.push(
+                        getPosition(
+                            fileToNum(move.finalPosition.file) - 1,
+                            move.finalPosition.rank
+                        )
+                    );
+                }
+
+                if (move.finalPosition.file !== "h") {
+                    positions.push(
+                        getPosition(
+                            fileToNum(move.finalPosition.file) + 1,
+                            move.finalPosition.rank
+                        )
+                    );
+                }
+
+                state.emPassant = {
+                    capture: move.finalPosition,
+                    color: toggleColor(piece.color),
+                    starts: positions,
+                    end: getPosition(
+                        move.finalPosition.file,
+                        move.finalPosition.rank +
+                            (piece.color === "WHITE" ? -1 : 1)
+                    ),
+                };
+            }
             if (move.capture) {
                 const captureEmPassantRank =
                     move.piece.color === "WHITE"
